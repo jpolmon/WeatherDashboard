@@ -6,27 +6,7 @@ let currentTemp = document.querySelector('#currentTemp');
 let currentWind = document.querySelector('#currentWind');
 let currentHum = document.querySelector('#currentHum');
 let currentUv = document.querySelector('#currentUv');
-// let date1 = document.querySelector('#date1');
-// let temp1 = document.querySelector('#temp1');
-// let wind1 = document.querySelector('#wind1');
-// let hum1 = document.querySelector('#hum1');
-// let date2 = document.querySelector('#date1');
-// let temp2 = document.querySelector('#temp2');
-// let wind2 = document.querySelector('#wind2');
-// let hum2 = document.querySelector('#hum2');
-// let date3 = document.querySelector('#date1');
-// let temp3 = document.querySelector('#temp3');
-// let wind3 = document.querySelector('#wind3');
-// let hum3 = document.querySelector('#hum3');
-// let date4 = document.querySelector('#date1');
-// let temp4 = document.querySelector('#temp4');
-// let wind4 = document.querySelector('#wind4');
-// let hum4 = document.querySelector('#hum4');
-// let date5 = document.querySelector('#date1');
-// let temp5 = document.querySelector('#temp5');
-// let wind5 = document.querySelector('#wind5');
-// let hum5 = document.querySelector('#hum5');
-
+let currentIcon = document.querySelector('#currentIcon');
 
 
 let formSubmitHandler = function (event) {
@@ -80,36 +60,42 @@ let renderWeather = function (weatherData) {
     let weatherArray = [
         {
             day: "0",
+            icon: "",
             temp: "",
             wind: "",
             humidity: ""
         },
         {
             day: "1",
+            icon: "",
             temp: "",
             wind: "",
             humidity: ""
         },
         {
             day: "2",
+            icon: "",
             temp: "",
             wind: "",
             humidity: ""
         },
         {
             day: "3",
+            icon: "",
             temp: "",
             wind: "",
             humidity: ""
         },
         {
             day: "4",
+            icon: "",
             temp: "",
             wind: "",
             humidity: ""
         },
         {
             day: "5",
+            icon: "",
             temp: "",
             wind: "",
             humidity: ""
@@ -117,13 +103,14 @@ let renderWeather = function (weatherData) {
     ];
 
     let uv = weatherData.current.uvi;
-    console.log(currentUv);
+    weatherArray[0].icon = weatherData.current.weather["0"].icon;
     weatherArray[0].temp = Math.round(((weatherData.current.temp - 273.15) * (9/5)) + 32);
     weatherArray[0].wind = weatherData.current.wind_speed;
     weatherArray[0].humidity = weatherData.current.humidity;
 
 
     for (let i = 1; i < weatherArray.length; i++) {
+        weatherArray[i].icon = weatherData.daily[i].weather["0"].icon;
         weatherArray[i].temp = Math.round(((weatherData.daily[i].temp.day - 273.15) * (9/5)) + 32);
         weatherArray[i].wind = weatherData.daily[i].wind_speed;
         weatherArray[i].humidity = weatherData.daily[i].humidity;      
@@ -136,24 +123,35 @@ let renderWeather = function (weatherData) {
     currentWind.textContent = `${weatherArray[0].wind} MPH`;
     currentHum.textContent = `${weatherArray[0].humidity} %`;
     currentUv.textContent = uv;
+    currentIcon.innerHTML = `<img src="http://openweathermap.org/img/wn/${weatherArray[0].icon}@2x.png" alt="current weather icon">`;
+
+    if (uv <= 2) {
+        currentUv.setAttribute('id', "low");
+    }
+    else if (uv <= 5) {
+        currentUv.setAttribute('id', "med");
+    }
+    else if (uv <= 7) {
+        currentUv.setAttribute('id', "high");
+    }
+    else {
+        currentUv.setAttribute('id', "v-high");
+    }
 
     for (let i = 1; i < weatherArray.length; i++) {
-        // let date = `date${i}`;
-        // let temp = `temp${i}`;
-        // let wind = `wind${i}`;
-        // let hum = `hum${i}`;
 
-        let updateDate = document.getElementById(`date${i}`)
+        let updateDate = document.getElementById(`date${i}`);
+        let udpateIcon = document.getElementById(`icon${i}`);
         let updateTemp = document.getElementById(`temp${i}`);
         let updateWind = document.getElementById(`wind${i}`);
         let updateHum = document.getElementById(`hum${i}`);
 
         updateDate.textContent = moment().add(i, 'days').format('M/D/YYYY');
+        udpateIcon.innerHTML = `<img src="http://openweathermap.org/img/wn/${weatherArray[i].icon}@2x.png" alt="current weather icon">`;
         updateTemp.textContent = `${weatherArray[i].temp}°F`;
         updateWind.textContent = `${weatherArray[i].wind} MPH`;
         updateHum.textContent = `${weatherArray[i].humidity} %`;       
     }
 }
-
 
 submitBtn.addEventListener('click', formSubmitHandler);

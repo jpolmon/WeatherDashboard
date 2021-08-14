@@ -1,5 +1,6 @@
 let submitBtn = document.querySelector('#button');
 let $history = $('.list-group');
+let $historyBtn = $('.historyBtn');
 
 let cityInput = document.querySelector('#city');
 let currentCity = document.querySelector('#currentCity');
@@ -19,44 +20,57 @@ function init(){
 
     if(storedCities !== null) {
         cityNames = storedCities;
-        renderHistory(storedCities);       
-    }
-    
+        renderHistory();       
+    }    
 }
 
-let renderHistory = function() {
+function renderHistory() {
 
     if (cityNames.lenght !== 0) {
 
         for (let i = 0; i < cityNames.length; i++) {
 
             let newButton = $('<li>');
-            newButton.addClass('button list-group-item mt-3 border rounded-3 bg-secondary');
-            newButton.attr('id', 'button');
-            newButton.textContent = cityNames[i];
-            $history.append(newButton);
+            newButton.addClass('list-group-item mt-3 p-0 bg-dark border-0');
+            newButton.attr('style', 'height: 50px');
+            newButton.html(`<div class="d-grid gap-2 h-100"><button class="historyBtn btn btn-secondary p-0" id="button">${cityNames[i]}</button></div>`);
+            $history.prepend(newButton);
         }  
     }
 }
 
-let addToHistory = newCity => {
+function addToHistory(newCity) {
     
     if ($('li').length = 9) {
         $history.children().eq(9).remove();
     }
-    
+
     let newButton = $('<li>');
-    newButton.addClass('button list-group-item mt-3 border rounded-3 bg-secondary');
-    newButton.attr('id', 'button');
-    newButton.text(newCity);
+    newButton.addClass('list-group-item mt-3 p-0 bg-dark border-0');
+    newButton.attr('style', 'height: 50px');
+    newButton.html(`<div class="d-grid gap-2 h-100"><button class="historyBtn btn btn-secondary p-0" id="button">${newCity}</button></div>`);
     $history.prepend(newButton);
+
+    addToStorage(newCity);
 }
 
-let formSubmitHandler = function (event) {
+function addToStorage(cityToStore) {
+    cityNames.push(cityToStore);
+
+    if (cityNames.length === 11) {
+        cityNames.shift();
+    }
+
+    localStorage.setItem('cities', JSON.stringify(cityNames));
+
+    console.log(cityNames);
+    console.log(localStorage);
+}
+
+function formSubmitHandler(event) {
     event.preventDefault();
 
     let city = cityInput.value.trim();
-    cityNames.push(city);
 
     if (city) {
     
@@ -71,7 +85,8 @@ let formSubmitHandler = function (event) {
     addToHistory(city);
 }
 
-let getWeatherInfo = function (location) {
+function getWeatherInfo(location) {
+    
     let lat;
     let long;
     let apiKey = "2c8a59c12a0f5d478caa56dfd4887203";     
@@ -92,7 +107,7 @@ let getWeatherInfo = function (location) {
                         response.json()
                         .then(data => {
                             console.log(data);
-                            renderWeather(data);
+                            renderWeather(data, location);
                         })
                     }
                 })                
@@ -103,7 +118,18 @@ let getWeatherInfo = function (location) {
         });
 }
 
-let renderWeather = function (weatherData) {
+function historyWeather(event) {
+    event.preventDefault();
+
+    let btnClicked = $(event.target);
+    let city = btnClicked.text();
+    console.log(city);
+
+    getWeatherInfo(city)
+    console.log(city);
+}
+
+function renderWeather(weatherData, city) {
 
     let weatherArray = [
         {
@@ -166,7 +192,7 @@ let renderWeather = function (weatherData) {
 
     console.log(weatherArray, uv);
 
-    currentCity.textContent = `${cityInput.value.trim()} (${moment().format('M/D/YYYY')})`;
+    currentCity.textContent = `${city} (${moment().format('M/D/YYYY')})`;
     currentTemp.textContent = `${weatherArray[0].temp}°F`;
     currentWind.textContent = `${weatherArray[0].wind} MPH`;
     currentHum.textContent = `${weatherArray[0].humidity} %`;
@@ -203,3 +229,4 @@ let renderWeather = function (weatherData) {
 }
 
 submitBtn.addEventListener('click', formSubmitHandler);
+$history.on('click', '.historyBtn', historyWeather);

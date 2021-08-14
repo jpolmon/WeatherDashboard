@@ -1,4 +1,5 @@
 let submitBtn = document.querySelector('#button');
+let $history = $('.list-group');
 
 let cityInput = document.querySelector('#city');
 let currentCity = document.querySelector('#currentCity');
@@ -8,19 +9,66 @@ let currentHum = document.querySelector('#currentHum');
 let currentUv = document.querySelector('#currentUv');
 let currentIcon = document.querySelector('#currentIcon');
 
+let cityNames = [];
+
+init();
+
+function init(){
+
+    let storedCities = JSON.parse(localStorage.getItem("cities"));
+
+    if(storedCities !== null) {
+        cityNames = storedCities;
+        renderHistory(storedCities);       
+    }
+    
+}
+
+let renderHistory = function() {
+
+    if (cityNames.lenght !== 0) {
+
+        for (let i = 0; i < cityNames.length; i++) {
+
+            let newButton = $('<li>');
+            newButton.addClass('button list-group-item mt-3 border rounded-3 bg-secondary');
+            newButton.attr('id', 'button');
+            newButton.textContent = cityNames[i];
+            $history.append(newButton);
+        }  
+    }
+}
+
+let addToHistory = newCity => {
+    
+    if ($('li').length = 9) {
+        $history.children().eq(9).remove();
+    }
+    
+    let newButton = $('<li>');
+    newButton.addClass('button list-group-item mt-3 border rounded-3 bg-secondary');
+    newButton.attr('id', 'button');
+    newButton.text(newCity);
+    $history.prepend(newButton);
+}
 
 let formSubmitHandler = function (event) {
     event.preventDefault();
 
     let city = cityInput.value.trim();
+    cityNames.push(city);
 
     if (city) {
-    getWeatherInfo(city);
-    console.log(city);   
+    
+        getWeatherInfo(city);
+        console.log(city);   
     } 
     else {
-    alert('Please enter a city name');
-    }  
+
+        alert('Please enter a city name');
+    } 
+    
+    addToHistory(city);
 }
 
 let getWeatherInfo = function (location) {

@@ -11,18 +11,25 @@ let currentUv = document.querySelector('#currentUv');
 let currentIcon = document.querySelector('#currentIcon');
 
 let cityNames = [];
+let badName = false;
+let newName = true;
+
+// Runs on page load to pull locally stored cities. 
 
 init();
 
-function init(){
+function init() {
 
     let storedCities = JSON.parse(localStorage.getItem("cities"));
 
     if(storedCities !== null) {
+        
         cityNames = storedCities;
         renderHistory();       
-    }    
+    }
 }
+
+// renders the stored cities in the history tab.  
 
 function renderHistory() {
 
@@ -39,9 +46,12 @@ function renderHistory() {
     }
 }
 
+// Adds the city to the history and removes excess searches. 
+
 function addToHistory(newCity) {
     
     if ($('li').length = 9) {
+        
         $history.children().eq(9).remove();
     }
 
@@ -50,25 +60,31 @@ function addToHistory(newCity) {
     newButton.attr('style', 'height: 50px');
     newButton.html(`<div class="d-grid gap-2 h-100"><button class="historyBtn btn btn-secondary p-0" id="button">${newCity}</button></div>`);
     $history.prepend(newButton);
-
-    addToStorage(newCity);
+    addToStorage(newCity); 
 }
 
+// Adds the city to local storage.
+
 function addToStorage(cityToStore) {
-    cityNames.push(cityToStore);
+    
+    if (badName === false) {
+        cityNames.push(cityToStore);      
+    }
+  
 
     if (cityNames.length === 11) {
         cityNames.shift();
     }
 
     localStorage.setItem('cities', JSON.stringify(cityNames));
-
-    console.log(cityNames);
-    console.log(localStorage);
 }
+
+// Funciton that fires off once the search button is clicked. 
 
 function formSubmitHandler(event) {
     event.preventDefault();
+
+    badName = false;    
 
     let city = cityInput.value.trim();
 
@@ -78,12 +94,12 @@ function formSubmitHandler(event) {
         console.log(city);   
     } 
     else {
-
+        
         alert('Please enter a city name');
-    } 
-    
-    addToHistory(city);
+    }       
 }
+
+// Function that pulls the information from the API call.
 
 function getWeatherInfo(location) {
     
@@ -94,33 +110,53 @@ function getWeatherInfo(location) {
     
     fetch(queryUrl1)
         .then(response => {
-            if (response.ok) {
-                response.json()
-                .then( data => {
+            if (!response.ok) {
+                alert('City is not valid!');
+                badName = true;
+            }
+            else {
+               
+                response.json()                
+
+                .then( data => {                    
+                    
+                    console.log(data);
                     lat = data.city.coord.lat;
                     long = data.city.coord.lon;
                     let queryUrl2 = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${long}&exclude=minutely,hourly,alerts&appid=${apiKey}`
                     return fetch(queryUrl2);
                 })
                 .then(response => {
+                    
                     if (response.ok) {
+                        
                         response.json()
                         .then(data => {
                             console.log(data);
                             renderWeather(data, location);
+
+                            if (newName === true && badName === false && !cityNames.includes(location)) {
+                        
+                                addToHistory(location);                                
+                            }
+                            newName = true;
                         })
                     }
                 })                
             }
         })
         .catch(error => {
+            
             alert('Unable to connect to OpenWeather');
         });
 }
 
+// Function that displays the weather when a button from the history is clicked. 
+
 function historyWeather(event) {
     event.preventDefault();
 
+    newName = false;
     let btnClicked = $(event.target);
     let city = btnClicked.text();
     console.log(city);
@@ -128,6 +164,8 @@ function historyWeather(event) {
     getWeatherInfo(city)
     console.log(city);
 }
+
+// Function that is called to display the weather. 
 
 function renderWeather(weatherData, city) {
 
@@ -228,5 +266,6 @@ function renderWeather(weatherData, city) {
     }
 }
 
+// Button event listeners
 submitBtn.addEventListener('click', formSubmitHandler);
 $history.on('click', '.historyBtn', historyWeather);

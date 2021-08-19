@@ -12,6 +12,7 @@ Some features of the site are:
 - The 10 most recent searches are saved locally and can be clicked on to bring up their respective weather information.  
 - There are validations to ensure that the user is putting in a valid city name and alerts to inform them if they did not.  
 - Repeat entries are not saved to the history to avoid clutter. 
+- This site utilizes BootStrap for layout/design.
 
 The site can be found at: https://jpolmon.github.io/WeatherHW06/
 

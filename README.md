@@ -14,7 +14,7 @@ Some features of the site are:
 - Repeat entries are not saved to the history to avoid clutter. 
 - This site utilizes BootStrap for layout/design.
 
-The site can be found at: https://jpolmon.github.io/WeatherHW06/
+The site can be found at: https://jpolmon.github.io/WeatherDashboard/
 
 ---
 ## Appearance
